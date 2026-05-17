@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "987896346383",
+    "project_id": "calbudget",
+    "storage_bucket": "calbudget.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987896346383:android:53b8a660c5387f2de3307a",
+        "android_client_info": {
+          "package_name": "com.example.calbudget"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvXXJWxVxMx8Z1lsEWjOJsXVryN8mbb6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
