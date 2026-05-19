@@ -1,4 +1,4 @@
-package com.example.calbudget.data.lokal.entity
+package com.example.calbudget.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
