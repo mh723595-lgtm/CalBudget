@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.calbudget.core.theme.CalBudgetTheme
+import com.example.calbudget.core.theme.FinanceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -20,8 +21,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            CalBudgetTheme {
-                CallNavGraph()
+            FinanceAppTheme {
+                FinanceNavGraph()
             }
         }
     }
