@@ -32,7 +32,14 @@ fun FinanceNavGraph(
 
         // Main Screen (berisi Bottom Nav)
         composable(Routes.Home.route) {
-            MainScreen()
+            MainScreen(rootNavController = navController)
+        }
+
+        // AddTransaction - screen full, bukan bottom nav
+        composable(Routes.AddTransaction.route) {
+            com.example.calbudget.presentation.transactions.AddTransactionScreen(
+                onNavigateBack = {navController.popBackStack()}
+            )
         }
     }
 }
