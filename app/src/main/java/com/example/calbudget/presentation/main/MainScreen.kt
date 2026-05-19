@@ -21,7 +21,8 @@ import com.example.calbudget.presentation.statistics.StatisticsScreen
 import com.example.calbudget.presentation.transactions.TransactionsScreen
 
 @Composable
-fun MainScreen(rootNavController: NavHostController) {
+fun MainScreen(
+    rootNavController: androidx.navigation.NavHostController) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -58,7 +59,13 @@ fun MainScreen(rootNavController: NavHostController) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Routes.Home.route) { HomeScreen() }
-            composable(Routes.Transactions.route) { TransactionsScreen() }
+            composable(Routes.Transactions.route) {
+                TransactionsScreen(
+                    onNavigateToAdd = {
+                        rootNavController.navigate(Routes.AddTransaction.route)
+                    }
+                )
+            }
             composable(Routes.Statistics.route) { StatisticsScreen() }
             composable(Routes.Settings.route) { SettingsScreen() }
         }
