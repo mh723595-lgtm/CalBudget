@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.example.calbudget.core.theme.CalBudgetTheme
+import com.example.calbudget.core.navigation.FinanceNavGraph
 import com.example.calbudget.core.theme.FinanceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
