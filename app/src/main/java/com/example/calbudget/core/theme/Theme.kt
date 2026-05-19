@@ -1,4 +1,4 @@
-package com.example.calbudget.ui.theme
+package com.example.calbudget.core.theme
 
 import android.app.Activity
 import android.os.Build

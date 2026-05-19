@@ -1,4 +1,4 @@
-package com.example.calbudget.ui.theme
+package com.example.calbudget.core.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
