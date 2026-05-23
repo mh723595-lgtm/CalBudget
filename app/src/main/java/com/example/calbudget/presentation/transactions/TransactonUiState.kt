@@ -37,13 +37,13 @@ data class AddTransactionUiState(
     val title: String = "",
     val amount: String = "",       // String karena TextField input
     val selectedType: TransactionType = TransactionType.EXPENSE,
-    val selectedCategory: String = "food",
+    val selectedCategoryId: String = "food",
     val note: String = "",
     val date: Long = System.currentTimeMillis(),
 
     // Validation errors
     val titleError: String? = null,
-    val amountError: String? = null
+    val amountError: String? = null,
 )
 
 // ✨ BARU: State untuk filter di TransactionsScreen

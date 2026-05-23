@@ -141,7 +141,7 @@ fun AddTransactionScreen(
             Text("Kategori", style = MaterialTheme.typography.titleMedium)
             CategoryGrid(
                 categories = categories,
-                selectedCategory = state.selectedCategory,
+                selectedCategory = state.selectedCategoryId,
                 onCategorySelected = viewModel::onCategoryChange
             )
 

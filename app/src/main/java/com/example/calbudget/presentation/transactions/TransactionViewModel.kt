@@ -2,6 +2,7 @@ package com.example.calbudget.presentation.transactions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.calbudget.core.category.CategoryManager
 import com.example.calbudget.data.repository.TransactionRepository
 import com.example.calbudget.domain.model.Transaction
 import com.example.calbudget.domain.model.TransactionType
@@ -27,6 +28,10 @@ class TransactionViewModel @Inject constructor(
     private val _addTransactionState = MutableStateFlow(AddTransactionUiState())
     val addTransactionState: StateFlow<AddTransactionUiState> = _addTransactionState.asStateFlow()
 
+    // ✨ BARU: Filter state
+    private val _filterState = MutableStateFlow(TransactionFilterState())
+    val filterState: StateFlow<TransactionFilterState> = _filterState.asStateFlow()
+
     // =========================================
     // INIT — langsung load data saat ViewModel dibuat
     // =========================================
@@ -45,8 +50,22 @@ class TransactionViewModel @Inject constructor(
             combine(
                 repository.getAllTransactions(),
                 repository.getTotalIncome(),
-                repository.getTotalExpense()
-            ) { transactions, income, expense ->
+                repository.getTotalExpense(),
+                _filterState
+            ) { transactions, income, expense, filter ->
+
+                // Terapkan filter
+                val filtered = transactions
+                    .filter { tx ->
+                        // Filter by type
+                        filter.selectedType == null || tx.type == filter.selectedType
+                    }
+                    .filter { tx ->
+                        // Filter by category ID
+                        filter.selectedCategoryId == null ||
+                                tx.category == filter.selectedCategoryId
+                    }
+
                 Triple(transactions, income, expense)
             }
                 .onStart { _uiState.value = TransactionUiState.Loading }
@@ -70,6 +89,27 @@ class TransactionViewModel @Inject constructor(
     }
 
     // =========================================
+    // FILTER EVENTS ✨ BARU
+    // =========================================
+
+    fun onTypeFilterChange(type: TransactionType?) {
+        _filterState.update {
+            it.copy(
+                selectedType = type,
+                selectedCategoryId = null   // reset kategori saat tipe berubah
+            )
+        }
+    }
+
+    fun onCategoryFilterChange(categoryId: String?) {
+        _filterState.update { it.copy(selectedCategoryId = categoryId) }
+    }
+
+    fun resetFilter() {
+        _filterState.value = TransactionFilterState()
+    }
+
+    // =========================================
     // ADD TRANSACTION FORM EVENTS
     // =========================================
 
@@ -84,11 +124,18 @@ class TransactionViewModel @Inject constructor(
     }
 
     fun onTypeChange(type: TransactionType) {
-        _addTransactionState.update { it.copy(selectedType = type) }
+        // Reset kategori ke default type baru
+        val defaultCategory = CategoryManager.getDefaultCategory(type)
+        _addTransactionState.update {
+            it.copy(
+                selectedType = type,
+                selectedCategoryId = defaultCategory.id
+            )
+        }
     }
 
     fun onCategoryChange(category: String) {
-        _addTransactionState.update { it.copy(selectedCategory = category) }
+        _addTransactionState.update { it.copy(selectedCategoryId = category) }
     }
 
     fun onNoteChange(value: String) {
@@ -132,7 +179,7 @@ class TransactionViewModel @Inject constructor(
                 title = state.title.trim(),
                 amount = state.amount.toDouble(),
                 type = state.selectedType,
-                category = state.selectedCategory,
+                category = state.selectedCategoryId,
                 note = state.note.trim(),
                 date = state.date,
                 createdAt = System.currentTimeMillis()
