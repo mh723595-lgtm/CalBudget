@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,19 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.calbudget.core.category.CategoryManager
 import com.example.calbudget.core.theme.*
 import com.example.calbudget.domain.model.TransactionType
-import com.example.calbudget.presentation.components.NeoBrutalCard
-import com.example.calbudget.presentation.components.NeoBrutalTextField
-
-// Kategori — akan diperluas di Tahap 3
-private val incomeCategories = listOf(
-    "💼 Gaji", "💰 Bisnis", "🎁 Hadiah", "📈 Investasi", "💳 Lainnya"
-)
-private val expenseCategories = listOf(
-    "🍔 Makan", "🚗 Transport", "🏠 Rumah", "🛍️ Belanja",
-    "💊 Kesehatan", "🎓 Pendidikan", "🎮 Hiburan", "💳 Lainnya"
-)
+import com.example.calbudget.presentation.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,8 +29,13 @@ fun AddTransactionScreen(
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.addTransactionState.collectAsState()
+    var showCategoryPicker by remember { mutableStateOf(false) }
 
-    // Kalau sukses disimpan, langsung back
+    // Resolve kategori yang dipilih
+    val selectedCategory = remember(state.selectedCategoryId) {
+        CategoryManager.getCategoryById(state.selectedCategoryId)
+    }
+
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
             viewModel.resetAddTransactionState()
@@ -46,23 +43,26 @@ fun AddTransactionScreen(
         }
     }
 
+    // Bottom sheet kategori
+    if (showCategoryPicker) {
+        CategoryPickerSheet(
+            transactionType = state.selectedType,
+            selectedCategoryId = state.selectedCategoryId,
+            onCategorySelected = viewModel::onCategoryChange,
+            onDismiss = { showCategoryPicker = false }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "Tambah Transaksi",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
+                title = { Text("Tambah Transaksi", style = MaterialTheme.typography.headlineSmall) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.Default.ArrowBack, "Kembali")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = NeoBrutalYellow
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = NeoBrutalYellow)
             )
         }
     ) { paddingValues ->
@@ -73,44 +73,42 @@ fun AddTransactionScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
 
             // ===== TIPE TRANSAKSI =====
-            Text("Tipe Transaksi", style = MaterialTheme.typography.titleMedium)
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                TransactionType.entries.forEach { type ->
-                    val isSelected = state.selectedType == type
-                    val bgColor = when {
-                        isSelected && type == TransactionType.INCOME -> IncomeColor
-                        isSelected && type == TransactionType.EXPENSE -> ExpenseColor
-                        else -> NeoBrutalWhite
-                    }
-                    val label = if (type == TransactionType.INCOME) "⬆ Pemasukan"
-                    else "⬇ Pengeluaran"
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .border(
-                                width = NeoBrutal.BorderWidth,
-                                color = NeoBrutalBlack,
-                                shape = RoundedCornerShape(NeoBrutal.RadiusSmall)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Tipe Transaksi", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(NeoBrutal.BorderWidth, NeoBrutalBlack,
+                            RoundedCornerShape(NeoBrutal.RadiusSmall))
+                        .background(NeoBrutalWhite, RoundedCornerShape(NeoBrutal.RadiusSmall)),
+                    horizontalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    TransactionType.entries.forEach { type ->
+                        val isSelected = state.selectedType == type
+                        val bgColor = when {
+                            isSelected && type == TransactionType.INCOME -> IncomeColor
+                            isSelected -> ExpenseColor
+                            else -> NeoBrutalWhite
+                        }
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .background(bgColor)
+                                .clickable { viewModel.onTypeChange(type) }
+                                .padding(vertical = 14.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = if (type == TransactionType.INCOME) "⬆ Pemasukan"
+                                else "⬇ Pengeluaran",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = if (isSelected) NeoBrutalWhite else NeoBrutalBlack
                             )
-                            .background(bgColor, RoundedCornerShape(NeoBrutal.RadiusSmall))
-                            .clickable { viewModel.onTypeChange(type) }
-                            .padding(vertical = 12.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (isSelected) NeoBrutalWhite else NeoBrutalBlack
-                        )
+                        }
                     }
                 }
             }
@@ -120,7 +118,7 @@ fun AddTransactionScreen(
                 value = state.title,
                 onValueChange = viewModel::onTitleChange,
                 label = "Judul",
-                placeholder = "Contoh: Makan siang",
+                placeholder = "Contoh: Makan siang di warteg",
                 errorMessage = state.titleError
             )
 
@@ -134,16 +132,57 @@ fun AddTransactionScreen(
                 keyboardType = KeyboardType.Decimal
             )
 
-            // ===== KATEGORI =====
-            val categories = if (state.selectedType == TransactionType.INCOME)
-                incomeCategories else expenseCategories
+            // ===== KATEGORI — pakai bottom sheet =====
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Kategori", style = MaterialTheme.typography.titleMedium)
 
-            Text("Kategori", style = MaterialTheme.typography.titleMedium)
-            CategoryGrid(
-                categories = categories,
-                selectedCategory = state.selectedCategoryId,
-                onCategorySelected = viewModel::onCategoryChange
-            )
+                NeoBrutalCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showCategoryPicker = true },
+                    backgroundColor = NeoBrutalWhite
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .background(
+                                        selectedCategory.color.copy(alpha = 0.15f),
+                                        RoundedCornerShape(NeoBrutal.RadiusSmall)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(selectedCategory.emoji,
+                                    style = MaterialTheme.typography.titleLarge)
+                            }
+                            Column {
+                                Text(
+                                    selectedCategory.label,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    "Ketuk untuk ganti",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = NeoBrutalBlack.copy(alpha = 0.5f)
+                                )
+                            }
+                        }
+                        Icon(
+                            Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = NeoBrutalBlack.copy(alpha = 0.5f)
+                        )
+                    }
+                }
+            }
 
             // ===== CATATAN =====
             NeoBrutalTextField(
@@ -154,21 +193,32 @@ fun AddTransactionScreen(
                 maxLines = 3
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // ===== TOMBOL SIMPAN =====
-            NeoBrutalCard(
-                modifier = Modifier.fillMaxWidth(),
-                backgroundColor = NeoBrutalYellow
-            ) {
+            Box {
+                // Shadow
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .offset(x = 4.dp, y = 4.dp)
+                        .background(NeoBrutalBlack, RoundedCornerShape(NeoBrutal.RadiusSmall))
+                )
                 Button(
                     onClick = viewModel::saveTransaction,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .border(NeoBrutal.BorderWidth, NeoBrutalBlack,
+                            RoundedCornerShape(NeoBrutal.RadiusSmall)),
                     enabled = !state.isLoading,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = NeoBrutalYellow,
-                        contentColor = NeoBrutalBlack
+                        contentColor = NeoBrutalBlack,
+                        disabledContainerColor = NeoBrutalGray
                     ),
+                    shape = RoundedCornerShape(NeoBrutal.RadiusSmall),
                     elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
                     if (state.isLoading) {
@@ -178,75 +228,13 @@ fun AddTransactionScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text(
-                            "💾 Simpan Transaksi",
-                            style = MaterialTheme.typography.labelLarge
-                        )
+                        Text("💾  Simpan Transaksi",
+                            style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
-
-    // Snackbar untuk error
-    if (state.errorMessage != null) {
-        LaunchedEffect(state.errorMessage) {
-            // Tampilkan error, lalu clear
-            viewModel.clearError()
-        }
-    }
-}
-
-// =========================================
-// CATEGORY GRID — reusable chip grid
-// =========================================
-@Composable
-private fun CategoryGrid(
-    categories: List<String>,
-    selectedCategory: String,
-    onCategorySelected: (String) -> Unit
-) {
-    val chunkedCategories = categories.chunked(3)
-
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        chunkedCategories.forEach { rowCategories ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                rowCategories.forEach { category ->
-                    val isSelected = selectedCategory == category
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .border(
-                                width = if (isSelected) NeoBrutal.BorderWidth else 1.dp,
-                                color = NeoBrutalBlack,
-                                shape = RoundedCornerShape(NeoBrutal.RadiusSmall)
-                            )
-                            .background(
-                                color = if (isSelected) NeoBrutalYellow else NeoBrutalWhite,
-                                shape = RoundedCornerShape(NeoBrutal.RadiusSmall)
-                            )
-                            .clickable { onCategorySelected(category) }
-                            .padding(vertical = 10.dp, horizontal = 4.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = category,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = NeoBrutalBlack,
-                            maxLines = 1
-                        )
-                    }
-                }
-                // Fill sisa kolom kalau tidak penuh 3
-                repeat(3 - rowCategories.size) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
         }
     }
 }
