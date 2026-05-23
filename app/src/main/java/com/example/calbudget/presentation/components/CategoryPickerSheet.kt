@@ -13,6 +13,11 @@ import com.example.calbudget.core.category.CategoryManager
 import com.example.calbudget.core.theme.NeoBrutalBlack
 import com.example.calbudget.core.theme.NeoBrutalYellow
 import com.example.calbudget.domain.model.TransactionType
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,22 +39,13 @@ fun CategoryPickerSheet(
                     .padding(top = 12.dp, bottom = 8.dp)
                     .width(48.dp)
                     .height(4.dp)
-                    .then(
-                        Modifier.run {
-                            androidx.compose.ui.draw.clip(
-                                androidx.compose.foundation.shape.RoundedCornerShape(2.dp)
-                            )
-                        }
-                    )
-                    .let { mod ->
-                        mod.also { }
-                    }
+                    .clip(RoundedCornerShape(2.dp))
             ) {
                 // Handle bar
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .androidx.compose.foundation.background(
+                        .background(
                             NeoBrutalBlack.copy(alpha = 0.3f)
                         )
                 )
@@ -107,22 +103,22 @@ private fun CategoryGridItem(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)                          // Bujursangkar
-            .androidx.compose.foundation.background(
+            .background(
                 bgColor,
-                androidx.compose.foundation.shape.RoundedCornerShape(
+                RoundedCornerShape(
                     com.example.calbudget.core.theme.NeoBrutal.RadiusSmall
                 )
             )
-            .androidx.compose.foundation.border(
+            .border(
                 width = if (isSelected)
                     com.example.calbudget.core.theme.NeoBrutal.BorderWidth
                 else 1.5.dp,
                 color = NeoBrutalBlack,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(
+                shape = RoundedCornerShape(
                     com.example.calbudget.core.theme.NeoBrutal.RadiusSmall
                 )
             )
-            .androidx.compose.foundation.clickable(onClick = onClick),
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Column(
