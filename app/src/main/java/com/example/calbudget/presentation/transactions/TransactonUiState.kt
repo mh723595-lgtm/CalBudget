@@ -1,6 +1,7 @@
 package com.example.calbudget.presentation.transactions
 
 import com.example.calbudget.domain.model.Transaction
+import com.example.calbudget.domain.model.TransactionType
 
 // Sealed class = hanya ada state yang sudah kita definisikan
 // Tidak bisa ada state lain yang tidak kita duga
@@ -37,11 +38,17 @@ data class AddTransactionUiState(
     val amount: String = "",       // String karena TextField input
     val selectedType: com.example.calbudget.domain.model.TransactionType =
         com.example.calbudget.domain.model.TransactionType.EXPENSE,
-    val selectedCategory: String = "Lainnya",
+    val selectedCategory: String = "food",
     val note: String = "",
     val date: Long = System.currentTimeMillis(),
 
     // Validation errors
     val titleError: String? = null,
     val amountError: String? = null
+)
+
+// ✨ BARU: State untuk filter di TransactionsScreen
+data class TransactionFilterState(
+    val selectedType: TransactionType? = null,         // null = semua tipe
+    val selectedCategoryId: String? = null             // null = semua kategori
 )
