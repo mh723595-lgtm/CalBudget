@@ -36,8 +36,7 @@ data class AddTransactionUiState(
     // Form fields
     val title: String = "",
     val amount: String = "",       // String karena TextField input
-    val selectedType: com.example.calbudget.domain.model.TransactionType =
-        com.example.calbudget.domain.model.TransactionType.EXPENSE,
+    val selectedType: TransactionType = TransactionType.EXPENSE,
     val selectedCategory: String = "food",
     val note: String = "",
     val date: Long = System.currentTimeMillis(),
