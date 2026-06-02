@@ -76,3 +76,61 @@ fun SummaryCard(
         }
     }
 }
+
+// Tambahkan di bawah SummaryCard.kt
+
+@Composable
+fun ExpenseProgressBar(
+    expensePercentage: Float,   // 0f - 1f
+    modifier: Modifier = Modifier
+) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = expensePercentage,
+        animationSpec = tween(1200, easing = FastOutSlowInEasing),
+        label = "expense_progress"
+    )
+
+    val progressColor = when {
+        expensePercentage < 0.5f -> IncomeColor
+        expensePercentage < 0.8f -> NeoBrutalOrange
+        else -> ExpenseColor
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Penggunaan anggaran",
+                style = MaterialTheme.typography.bodySmall,
+                color = NeoBrutalBlack.copy(alpha = 0.6f)
+            )
+            Text(
+                text = "${(expensePercentage * 100).toInt()}%",
+                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                color = progressColor
+            )
+        }
+
+        // Track background
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(10.dp)
+                .background(NeoBrutalGray, RoundedCornerShape(5.dp))
+                .border(1.dp, NeoBrutalBlack.copy(alpha = 0.2f), RoundedCornerShape(5.dp))
+        ) {
+            // Progress fill — animasi lebar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(animatedProgress.coerceIn(0f, 1f))
+                    .fillMaxHeight()
+                    .background(progressColor, RoundedCornerShape(5.dp))
+            )
+        }
+    }
+}
