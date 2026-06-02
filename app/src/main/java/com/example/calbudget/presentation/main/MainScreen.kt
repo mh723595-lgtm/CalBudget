@@ -6,6 +6,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -44,7 +45,6 @@ fun MainScreen(
                 currentDestination = currentDestination,
                 onItemClick = { item ->
                     navController.navigate(item.route) {
-                        // Hindari duplicate di backstack
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
                         }
@@ -60,16 +60,27 @@ fun MainScreen(
             startDestination = Routes.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Routes.Home.route) { HomeScreen() }
+            composable(Routes.Home.route) {
+                HomeScreen(
+                    onNavigateToTransactions = {
+                        // Navigasi ke tab Transaksi
+                        navController.navigate(Routes.Transactions.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onLogout = onLogout
+                )
+            }
             composable(Routes.Transactions.route) {
                 TransactionsScreen(
                     onNavigateToAdd = {
                         rootNavController.navigate(Routes.AddTransaction.route)
                     }
                 )
-            }
-            composable(Routes.Home.route) {
-                HomeScreen(onLogout = onLogout)  // sementara
             }
             composable(Routes.Statistics.route) { StatisticsScreen() }
             composable(Routes.Settings.route) { SettingsScreen() }
