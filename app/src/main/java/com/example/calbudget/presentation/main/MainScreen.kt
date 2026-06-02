@@ -68,6 +68,9 @@ fun MainScreen(
                     }
                 )
             }
+            composable(Routes.Home.route) {
+                HomeScreen(onLogout = onLogout)  // sementara
+            }
             composable(Routes.Statistics.route) { StatisticsScreen() }
             composable(Routes.Settings.route) { SettingsScreen() }
         }
