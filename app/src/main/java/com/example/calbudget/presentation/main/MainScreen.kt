@@ -83,7 +83,14 @@ fun MainScreen(
                 )
             }
             composable(Routes.Statistics.route) { StatisticsScreen() }
-            composable(Routes.Settings.route) { SettingsScreen() }
+            composable(Routes.Settings.route) {
+                SettingsScreen(
+                    onLogout = onLogout,
+                    onNavigateToExport = {
+//                        rootNavController.navigate(Routes.Export.route)
+                    }
+                )
+            }
         }
     }
 }
